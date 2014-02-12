@@ -24,7 +24,14 @@ def callback(i, payload) :
 
 q = nfqueue.queue()
 q.open()
-q.bind(AF_INET)
+#must unbind whatever is in AF_INET first. if not then the program will
+#not work
+q.unbind(AF_INET)
+if q.bind(AF_INET) != 0 :
+	q.close()
+	print("Error in binding to nfqueue")
+	sys.exit()
+
 q.set_callback(callback)
 q.create_queue(0)
 
