@@ -1,0 +1,34 @@
+#man in the middle program
+#must do this command
+#sudo-apt get install python-scapy
+import sys
+import nfqueue
+
+from socket import AF_INET, AF_INET6, inet_ntoa
+from scapy.all import *
+import struct
+
+def callback(i, payload) :
+	pkt = IP(payload.get_data())
+	if pkt.haslayer(Raw) : 
+		print(pkt.getlayer(Raw).load)
+	payload.set_verdict(nfqueue.NF_ACCEPT)
+
+q = nfqueue.queue()
+q.open()
+q.unbind(AF_INET)
+if q.bind(AF_INET) != 0 :
+	q.close()
+	print("Error in binding to nfqueue")
+	sys.exit()
+
+q.set_callback(callback)
+q.create_queue(0)
+
+try :
+	q.try_run()
+except KeyboardInterrupt :
+	print 'Exiting...'
+
+q.unbind(AF_INET)
+q.close()
