@@ -1,6 +1,7 @@
 from socket import *
 import sys
 import os.path
+import struct
 
 HOST = ''
 PORT = 400
@@ -14,7 +15,12 @@ serv.listen(5)
 conn = None
 addr = None
 
-f = open('/tmp/messages.txt', 'w+')
+if os.path.exists('/tmp/messages.txt') :
+	f = open('/tmp/messages.txt', 'a')
+else :
+	f = open('/tmp/messages.txt', 'w+')
+
+f.write('-----------------BEGINNING OF SEQUENCE OF MESSAGES--------------------\n')
 
 while True :
 	try :
@@ -24,20 +30,26 @@ while True :
 
 		while True :	
 
-			msg = conn.recv(BUFSIZE)
-			if len(msg) == 0 : 
+			data = conn.recv(BUFSIZE)
+			if len(data) == 0 : 
 				conn.close()
 				serv.close()
 				break
 
+			temp = struct.unpack('i' + str(len(data) - 4) + 's', data)
+			print(str(temp[0]) + ': ' + temp[1])
 			#decrypt here
 
-			print(msg)
-			f.write(msg)
+			#write to file here
+			f.write(str(temp[0]) + ': ' + temp[1] + '\n')
 		
 	except :
 		serv.close()
 		if conn is not None :
 			conn.close()
+		f.write('-----------------END OF SEQUENCE OF MESSAGES---------------------\n')
+		f.close()
+		serv.close()
 		sys.exit()
+f.close()
 serv.close()

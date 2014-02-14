@@ -1,6 +1,24 @@
 #man in the middle program
-#must do this command
+#HOW TO RUN
+
+#before running the program, run some stuff on the command line, since
+#every time we load up the experiment, we won't have the right files in place
+
+#must do these commands to get the right files
 #sudo-apt get install python-scapy
+#sudo apt-get install -y nfqueue-bindings-python
+
+#you will probably have to do this every time you run an experiment 
+#then in the command line rune
+#sudo iptables -A FORWARD -p tcp -j NFQUEUE
+#then just run
+#sudo python mitm.py
+
+#i will put a link to some documentation of iptables and some
+#documentation just in case you want to play with this
+
+#you need the sudo commands or else things won't work because we
+#dont necessarily have the right permissions
 import sys
 import nfqueue
 
