@@ -1,17 +1,35 @@
-##client.py
+## client.py
 from socket import *
 import sys
 import os.path
 import time
 import struct
+import getopt
 
 HOST = None
+ciphertype = None
+blockSize = 0
+try:
+	opts, args = getopt.getopt(sys.argv[1:], "h:t:b:", ["host=", "type=", "block="])
+except getopt.GetoptError:
+      	#sys.exit(2)
+      	print 'client.py -h [hostname] -t [ciphertype] -b [blockSize or number of maps]'
+        sys.exit(2)
 
-if len(sys.argv) != 2 :
-	print('Please enter a server name, exiting...')
-	sys.exit()
+for o, a in opts:
+        if o in ("-h", "--host"):
+		HOST = a
+        elif o in ("-t", "--type"):
+            	ciphertype = a
+        elif o in ("-b", "--block"):
+            	blockSize = int(a)
+        else:
+            	assert False, "unhandled option"
 
-HOST = sys.argv[1]
+if HOST == None: 
+      	print "HOST needs to be specified"
+	print 'client.py -h [hostname] -t [ciphertype] -b [blockSize or number of maps]'
+        sys.exit(2)
 
 PORT = 400
 ADDR = (HOST,PORT)
@@ -19,55 +37,59 @@ BUFSIZE = 4096
 
 sequence_number = 0
 
-while True : 
-	try :
-		client = socket(AF_INET, SOCK_STREAM)
-		client.connect((ADDR))
-	
-	except gaierror, (value, message) :
-		if(client) :
-			client.close()
-		print('Bad server name, exiting...')
-		sys.exit()	
+while True :
+        try :
+                client = socket(AF_INET, SOCK_STREAM)
+                client.connect((ADDR))
 
-	msg = None
-	f = None
+        except gaierror, (value, message) :
+                if(client) :
+                        client.close()
+                print('Bad server name, exiting...')
+                sys.exit()
+
+        msg = None
+        f = None
+
+        while True :
+                path = raw_input('Enter messages file (full path): ')
+                if(os.path.isfile(path)) :
+                        f = open(path)
+                        break
+                else :
+                        print("File doesn't exist, try again")
 
 	while True :
-		path = raw_input('Enter messages file (full path): ')	
-		if(os.path.isfile(path)) :
-			f = open(path)
-			break
-		else :
-			print("File doesn't exist, try again")
+                #read data from file here
+                #ask teacher to see if the messages end in a newline char or
+                #if they don't end in a newline char, then they are 100 bytes
+                #including newline character
+                line = f.readline(100)
+                if len(line) == 0 :
+                        client.close()
+                        sys.exit()
 
-	while True :
-		#read data from file here
-		#ask teacher to see if the messages end in a newline char or
-		#if they don't end in a newline char, then they are 100 bytes
-		#including newline character
-		line = f.readline(100)
-		if len(line) == 0 :
-			client.close()
-			sys.exit()
-	
-		data = None
-		if '\n' in line :
-			data = line[0:len(line) - 1]
-		else :
-			data = line[0:len(line)]
+                data = None
+                if '\n' in line :
+                        data = line[0:len(line) - 1]
+                else :
+                        data = line[0:len(line)]
 
-		#encrypt here
+                #encrypt here
+		if type == 'polygram'
+			# need to decide on the key value
+			polygram(data, 'SOMEKEYVALUE', blockSize, encrypt) 
 
-		#put a sequence number here
-		msg = struct.pack('i' + str(len(data)) + 's', sequence_number, data)
-		print(msg[1:])
-		sequence_number = sequence_number + 1
-		
-		#send
-		client.send(msg)
+                #put a sequence number here
+                msg = struct.pack('i' + str(len(data)) + 's', sequence_number, data)
+                print(msg[1:])
+                sequence_number = sequence_number + 1
 
-		#sleep here
-		time.sleep(2)
+                #send
+                client.send(msg)
+
+                #sleep here
+                time.sleep(2)
 f.close()
 client.close()
+
