@@ -76,7 +76,7 @@ while True :
                         data = line[0:len(line)]
 
                 #encrypt here
-		if type == 'polygram'
+		if type == 'polygram' :
 			# need to decide on the key value
 			polygram(data, 'SOMEKEYVALUE', blockSize, encrypt) 
 
