@@ -28,25 +28,33 @@ import struct
 import os.path
 
 def callback(i, payload) :
-	global f
+	global log
 	pkt = IP(payload.get_data())
+
+
 	if pkt.haslayer(Raw) : 
 		temp = pkt.getlayer(Raw).load
-		data = struct.unpack(str(len(temp)) + 'c', temp)
-		for d in data :
+		#will need different unpacking structure for different types of cracking methods probably
+		raw_data = struct.unpack(str(len(temp)) + 'c', temp)
+
+		#if doing cracking in the callback function, decrypt here
+		#else communicate to cracking software to crack the new
+		#message that we just unpacked
+
+		for d in raw_data :
 			sys.stdout.write(str(ord(d)))
-			f.write(str(ord(d)))
+			log.write(str(ord(d)))
 		print(' ')
-		f.write('\n')
+		log.write('\n')
 	payload.set_verdict(nfqueue.NF_ACCEPT)
 
-f = None
-if os.path.exists('/tmp/messages.txt') :
-	f = open('/tmp/messages.txt', 'a')
+log = None
+if os.path.exists('messages.txt') :
+	log = open('messages.txt', 'a')
 else :
-	f = open('/tmp/messages.txt', 'w+')
+	log = open('messages.txt', 'w+')
 
-f.write('----------------BEGIN SEQUENCE OF MESSAGES-----------------\n')
+log.write('----------------BEGIN SEQUENCE OF MESSAGES-----------------\n')
 q = nfqueue.queue()
 q.open()
 q.unbind(AF_INET)
@@ -62,7 +70,7 @@ try :
 	q.try_run()
 except KeyboardInterrupt :
 	print 'Exiting...'
-f.write('----------------END SEQUENCE OF MESSAGES-----------------\n\n')
-
-q.unbind(AF_INET)
-q.close()
+	log.write('----------------END SEQUENCE OF MESSAGES-----------------\n\n')
+	log.close()
+	q.unbind(AF_INET)
+	q.close()

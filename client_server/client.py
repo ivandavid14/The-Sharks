@@ -5,6 +5,8 @@ import os.path
 import time
 import struct
 import getopt
+sys.path.append('../encryption')
+from monoalphabetic_class import *
 
 HOST = None
 ciphertype = None
@@ -36,6 +38,10 @@ ADDR = (HOST,PORT)
 BUFSIZE = 4096
 
 sequence_number = 0
+
+cipher = None
+if ciphertype == 'monoalphabetic' :
+	cipher = mono_alpha()
 
 while True :
         try :
@@ -75,13 +81,19 @@ while True :
                 else :
                         data = line[0:len(line)]
 
+		encrypted_message = None
+
                 #encrypt here
-		if type == 'polygram' :
+		if ciphertype == 'polygram' :
 			# need to decide on the key value
 			polygram(data, 'SOMEKEYVALUE', blockSize, encrypt) 
+		elif ciphertype == 'monoalphabetic' :
+			encrypted_message = cipher.encrypt(data)
+		elif ciphertype == None :
+			encrypted_message = data
 
                 #put a sequence number here
-                msg = struct.pack('i' + str(len(data)) + 's', sequence_number, data)
+                msg = struct.pack('i' + str(len(encrypted_message)) + 's', sequence_number, encrypted_message)
                 print(msg[1:])
                 sequence_number = sequence_number + 1
 

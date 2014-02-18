@@ -1,9 +1,36 @@
+##server.py
 from socket import *
 import sys
 import os.path
 import struct
+import getopt
+import time
+
+sys.path.append('../encryption')
+from monoalphabetic_class import *
 
 HOST = ''
+ciphertype = None
+blockSize = 0
+cipher = None
+
+try :
+	opts, args = getopt.getopt(sys.argv[1:], "t:b:", ["type=", "block="])
+except getopt.GetoptError:
+	print 'server.py -t [ciphertype] -b [blockSize]'
+	sys.exit(2)
+
+for o, a in opts :
+	if o in ("-t","--type") :
+		ciphertype = a
+	elif o in ("-b", "--block") :
+		blocksize = int(a)
+	else :
+		assert False, "unhandled option"
+
+if ciphertype == 'monoalphabetic' :
+	cipher = mono_alpha()
+
 PORT = 400
 ADDR = (HOST, PORT)
 BUFSIZE = 4096
@@ -15,12 +42,17 @@ serv.listen(5)
 conn = None
 addr = None
 
-if os.path.exists('/tmp/messages.txt') :
-	f = open('/tmp/messages.txt', 'a')
-else :
-	f = open('/tmp/messages.txt', 'w+')
+f = None
+log = None
 
-f.write('-----------------BEGINNING OF SEQUENCE OF MESSAGES--------------------\n')
+f = open('messages.txt', 'w+')
+
+if os.path.exists('log.txt') :
+	log = open('log.txt', 'a')
+else :
+	log = open('log.txt', 'w+')
+
+log.write('-----------------BEGINNING OF SEQUENCE OF MESSAGES--------------------\n')
 
 while True :
 	try :
@@ -37,19 +69,27 @@ while True :
 				break
 
 			temp = struct.unpack('i' + str(len(data) - 4) + 's', data)
-			print(str(temp[0]) + ': ' + temp[1])
 			#decrypt here
+			decrypted_message = None
+			if ciphertype == 'monoalphabetic' :
+				decrypted_message = cipher.decrypt(temp[1])
+			elif ciphertype == None :
+				decrypted_message = temp[1]
+			print(str(temp[0]) + ': ' + decrypted_message)
 
 			#write to file here
-			f.write(str(temp[0]) + ': ' + temp[1] + '\n')
+			log.write(str(temp[0]) + ': ' + decrypted_message + '\n')
+			f.write(str(temp[0]) + ': ' + decrypted_message + '\n')
 		
 	except :
 		serv.close()
 		if conn is not None :
 			conn.close()
-		f.write('-----------------END OF SEQUENCE OF MESSAGES---------------------\n')
+		log.write('-----------------END OF SEQUENCE OF MESSAGES---------------------\n')
 		f.close()
+		log.close()
 		serv.close()
 		sys.exit()
 f.close()
+log.close()
 serv.close()

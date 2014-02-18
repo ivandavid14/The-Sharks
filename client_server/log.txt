@@ -1,0 +1,3 @@
+-----------------BEGINNING OF SEQUENCE OF MESSAGES--------------------
+0: test message
+-----------------END OF SEQUENCE OF MESSAGES---------------------
