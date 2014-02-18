@@ -26,35 +26,42 @@ from socket import AF_INET, AF_INET6, inet_ntoa
 from scapy.all import *
 import struct
 import os.path
+import threading
+from multiprocessing import Process, Queue
+
+s = threading.Semaphore(0)
+queue = Queue()
+f = None
+if os.path.exists('messages.txt') :
+	f = open('messages.txt', 'a')
+else :
+	f = open('messages.txt', 'w+')
+
+def crack(queue, write_file) :
+	#DO CRACKING IN THE WHILE LOOP
+	#SINCE THIS IS A DIFFERENT PROCESS, WE CAN DO SWITCHING OF CRACKING METHODS
+	#ON THE FLY
+	while True :
+		try :
+			temp = queue.get(block=True)
+			for d in temp :
+				write_file.write(str(ord(d)))
+			write_file.write('\n')
+		except :
+			write_file.close()
+			print('fuck')
+			return -1
 
 def callback(i, payload) :
-	global log
 	pkt = IP(payload.get_data())
-
-
-	if pkt.haslayer(Raw) : 
+	if pkt.haslayer(Raw) == True: 
 		temp = pkt.getlayer(Raw).load
-		#will need different unpacking structure for different types of cracking methods probably
-		raw_data = struct.unpack(str(len(temp)) + 'c', temp)
-
-		#if doing cracking in the callback function, decrypt here
-		#else communicate to cracking software to crack the new
-		#message that we just unpacked
-
-		for d in raw_data :
-			sys.stdout.write(str(ord(d)))
-			log.write(str(ord(d)))
-		print(' ')
-		log.write('\n')
+		global queue
+		global s
+		queue.put(temp)
+		print('put data in queue')
 	payload.set_verdict(nfqueue.NF_ACCEPT)
 
-log = None
-if os.path.exists('messages.txt') :
-	log = open('messages.txt', 'a')
-else :
-	log = open('messages.txt', 'w+')
-
-log.write('----------------BEGIN SEQUENCE OF MESSAGES-----------------\n')
 q = nfqueue.queue()
 q.open()
 q.unbind(AF_INET)
@@ -66,11 +73,12 @@ if q.bind(AF_INET) != 0 :
 q.set_callback(callback)
 q.create_queue(0)
 
+p = Process(target=crack, args=(queue,f,))
+p.start()
+
 try :
 	q.try_run()
 except KeyboardInterrupt :
 	print 'Exiting...'
-	log.write('----------------END SEQUENCE OF MESSAGES-----------------\n\n')
-	log.close()
 	q.unbind(AF_INET)
 	q.close()
