@@ -8,10 +8,12 @@ import getopt
 sys.path.append('../encryption')
 from monoalphabetic_class import *
 from homophonic import *
+from poly import *
 
 HOST = None
 ciphertype = None
 blockSize = 0
+poly_key = []
 try:
 	opts, args = getopt.getopt(sys.argv[1:], "h:t:b:", ["host=", "type=", "block="])
 except getopt.GetoptError:
@@ -43,6 +45,8 @@ sequence_number = 0
 cipher = None
 if ciphertype == 'monoalphabetic' :
 	cipher = mono_alpha()
+if ciphertype == 'polyalphabetic' :
+	poly_key = poly_gen_key(blockSize)
 
 while True :
         try :
@@ -92,6 +96,9 @@ while True :
 			encrypted_message = cipher.encrypt(data)
 		elif ciphertype == 'homophonic' :
 			encrypted_message = encrypt(key, data)
+		elif ciphertype == 'polyalphabetic' :
+			encrypted_message = translate('encrypt', poly_key, data)
+			print(data)
 		elif ciphertype == None :
 			encrypted_message = data
 

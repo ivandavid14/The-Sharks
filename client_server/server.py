@@ -9,11 +9,13 @@ import time
 sys.path.append('../encryption')
 from monoalphabetic_class import *
 from homophonic import *
+from poly import *
 
 HOST = ''
 ciphertype = None
 blockSize = 0
 cipher = None
+poly_key = []
 
 try :
   opts, args = getopt.getopt(sys.argv[1:], "t:b:", ["type=", "block="])
@@ -31,6 +33,9 @@ for o, a in opts :
 
 if ciphertype == 'monoalphabetic' :
   cipher = mono_alpha()
+elif ciphertype == 'polyalphabetic' :
+  poly_key = poly_gen_key(blocksize)
+print(str(len(poly_key)) + ' ' + str(blocksize))
 
 PORT = 400
 ADDR = (HOST, PORT)
@@ -77,6 +82,8 @@ while True :
       elif ciphertype == 'homophonic' :
         l = temp[1].split(' ')
         decrypted_message = decrypt(key, l)
+      elif ciphertype == 'polyalphabetic' :
+        decrypted_message = translate('decrypt', poly_key, temp[1])
       else :
         decrypted_message = temp[1]
   
