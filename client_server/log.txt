@@ -82,3 +82,11 @@
 3: steve morese is the best guitarist ever
 4: michael jackson is a great dancer
 -----------------END OF SEQUENCE OF MESSAGES---------------------
+-----------------BEGINNING OF SEQUENCE OF MESSAGES--------------------
+0: hello
+1: how are you today
+-----------------END OF SEQUENCE OF MESSAGES---------------------
+-----------------BEGINNING OF SEQUENCE OF MESSAGES--------------------
+0: hello
+1: how are you today
+-----------------END OF SEQUENCE OF MESSAGES---------------------

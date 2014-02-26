@@ -28,6 +28,8 @@ import struct
 import os.path
 import threading
 from multiprocessing import Process, Queue
+sys.path.append('../cracking')
+from mono_c import *
 
 s = threading.Semaphore(0)
 queue = Queue()

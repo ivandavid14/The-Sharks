@@ -35,7 +35,6 @@ if ciphertype == 'monoalphabetic' :
   cipher = mono_alpha()
 elif ciphertype == 'polyalphabetic' :
   poly_key = poly_gen_key(blocksize)
-print(str(len(poly_key)) + ' ' + str(blocksize))
 
 PORT = 400
 ADDR = (HOST, PORT)
