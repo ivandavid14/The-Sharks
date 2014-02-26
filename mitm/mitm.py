@@ -70,6 +70,11 @@ def crack(queue, write_file, cipher, block) :
 			elif(cipher == 'homo') :
 
 			elif(cipher == 'polyalpha') :
+				temp = queue.get(block=True)
+				t = crackpolyal(temp)
+				for d in temp :
+					write_file.write(str(ord(d)) + ' ')
+				write_file.write('\n')
 			
 			elif(cipher == 'gram') :
 			
