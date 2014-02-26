@@ -7,6 +7,7 @@ import struct
 import getopt
 sys.path.append('../encryption')
 from monoalphabetic_class import *
+from homophonic import *
 
 HOST = None
 ciphertype = None
@@ -89,12 +90,13 @@ while True :
 			polygram(data, 'SOMEKEYVALUE', blockSize, encrypt) 
 		elif ciphertype == 'monoalphabetic' :
 			encrypted_message = cipher.encrypt(data)
+		elif ciphertype == 'homophonic' :
+			encrypted_message = encrypt(key, data)
 		elif ciphertype == None :
 			encrypted_message = data
 
                 #put a sequence number here
                 msg = struct.pack('i' + str(len(encrypted_message)) + 's', sequence_number, encrypted_message)
-                print(msg[1:])
                 sequence_number = sequence_number + 1
 
                 #send
@@ -104,4 +106,3 @@ while True :
                 time.sleep(2)
 f.close()
 client.close()
-
