@@ -9,6 +9,7 @@ sys.path.append('../encryption')
 from monoalphabetic_class import *
 from homophonic import *
 from poly import *
+from gram import *
 
 HOST = None
 ciphertype = None
@@ -88,17 +89,19 @@ while True :
 
 		encrypted_message = None
 
+		print(data)
+
                 #encrypt here
-		if ciphertype == 'polygram' :
-			# need to decide on the key value
-			polygram(data, 'SOMEKEYVALUE', blockSize, encrypt) 
-		elif ciphertype == 'monoalphabetic' :
+		if ciphertype == 'monoalphabetic' :
 			encrypted_message = cipher.encrypt(data)
 		elif ciphertype == 'homophonic' :
 			encrypted_message = encrypt(key, data)
 		elif ciphertype == 'polyalphabetic' :
 			encrypted_message = translate('encrypt', poly_key, data)
-			print(data)
+		elif ciphertype == 'polygram' :
+			encrypted_message = polygram(data, 'hell', blockSize, 'encrypt')
+			print('encrypted_message: ' + encrypted_message)
+			
 		elif ciphertype == None :
 			encrypted_message = data
 

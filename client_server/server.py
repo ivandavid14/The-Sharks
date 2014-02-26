@@ -10,6 +10,7 @@ sys.path.append('../encryption')
 from monoalphabetic_class import *
 from homophonic import *
 from poly import *
+from gram import *
 
 HOST = ''
 ciphertype = None
@@ -83,6 +84,8 @@ while True :
         decrypted_message = decrypt(key, l)
       elif ciphertype == 'polyalphabetic' :
         decrypted_message = translate('decrypt', poly_key, temp[1])
+      elif ciphertype == 'polygram' :
+        decrypted_message = polygram(temp[1], 'hell', blocksize, 'decrypt')
       else :
         decrypted_message = temp[1]
   

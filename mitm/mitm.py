@@ -31,6 +31,20 @@ from multiprocessing import Process, Queue
 sys.path.append('../cracking')
 from mono_c import *
 
+ciphertype = None
+blocksize = 0
+
+try :
+	opts, args = getopt.getopt(sys.argv[1:], "t:b:", ["type=", "block="])
+except getopt.GetoptError :
+	sys.exit(2)
+	
+for o, a in opts :
+	if o in ('-t', '--type')
+		ciphertype = a
+	elif o in ('-b', '--block')
+		blocksize = int(a)
+
 s = threading.Semaphore(0)
 queue = Queue()
 f = None
@@ -39,16 +53,26 @@ if os.path.exists('messages.txt') :
 else :
 	f = open('messages.txt', 'w+')
 
-def crack(queue, write_file) :
+def crack(queue, write_file, cipher, block) :
 	#DO CRACKING IN THE WHILE LOOP
 	#SINCE THIS IS A DIFFERENT PROCESS, WE CAN DO SWITCHING OF CRACKING METHODS
 	#ON THE FLY
 	while True :
 		try :
-			temp = queue.get(block=True)
-			for d in temp :
-				write_file.write(str(ord(d)))
-			write_file.write('\n')
+			if(cipher == 'mono')
+				messages = []
+				temp = queue.get(block=True)
+				messages.append(temp)
+				t = mono_crack(''.join(messages))
+				for d in temp :
+					write_file.write(str(ord(d)) + ' ')
+				write_file.write('\n')
+			elif(cipher == 'homo') :
+
+			elif(cipher == 'polyalpha') :
+			
+			elif(cipher == 'gram') :
+			
 		except :
 			write_file.close()
 			print('fuck')
@@ -75,7 +99,7 @@ if q.bind(AF_INET) != 0 :
 q.set_callback(callback)
 q.create_queue(0)
 
-p = Process(target=crack, args=(queue,f,))
+p = Process(target=crack, args=(queue,f,ciphertype,blocksize))
 p.start()
 
 try :
